@@ -1,0 +1,42 @@
+services:
+    zookeeper-1:
+        image: loind31/zookeeper:v0
+        hostname: zookeeper-1
+        container_name: zookeeper-1
+        ports:
+            - 2181:2181
+        environment:
+            ZK_ID: 1
+        command: ["/bin/bash", "/workspace/entrypoint.sh"]
+        volumes:
+            - ./config/zookeeper:/workspace/zookeeper/conf
+            - ./data/zookeepers/node-1:/workspace/zookeeper/data
+            - ./scripts/zookeeper-entrypoint.sh:/workspace/entrypoint.sh
+    
+    zookeeper-2:
+        image: loind31/zookeeper:v0
+        hostname: zookeeper-2
+        container_name: zookeeper-2
+        ports:
+            - 2182:2181
+        environment:
+            ZK_ID: 2
+        command: ["/bin/bash", "/workspace/entrypoint.sh"]
+        volumes:
+            - ./config/zookeeper:/workspace/zookeeper/conf
+            - ./data/zookeepers/node-2:/workspace/zookeeper/data
+            - ./scripts/zookeeper-entrypoint.sh:/workspace/entrypoint.sh
+
+    zookeeper-3:
+        image: loind31/zookeeper:v0
+        hostname: zookeeper-3
+        container_name: zookeeper-3
+        ports:
+            - 2183:2181
+        environment:
+            ZK_ID: 3
+        command: ["/bin/bash", "/workspace/entrypoint.sh"]
+        volumes:
+            - ./config/zookeeper:/workspace/zookeeper/conf
+            - ./data/zookeepers/node-3:/workspace/zookeeper/data
+            - ./scripts/zookeeper-entrypoint.sh:/workspace/entrypoint.sh

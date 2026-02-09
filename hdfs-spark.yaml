@@ -1,0 +1,106 @@
+services:
+
+    namenode1:
+        image: loind31/hdfs-spark:v0
+        hostname: namenode1
+        container_name: namenode1
+        command: ["/bin/bash", "/workspace/actived-namenode.sh"]
+        ports:
+            - 8088:8088
+            - 19888:19888
+            - 9870:9870
+            - 8888:8888
+            - 18080:18080
+            - 15002:15002
+            - 4040:4040
+        volumes:
+            - ./data/namenodes/actived:/workspace/hadoop/dfs/name
+            - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
+            - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./src:/workspace/src
+            - ./scripts/actived-namenode.sh:/workspace/actived-namenode.sh
+        depends_on:
+            - datanode-nodemanager-1
+            - datanode-nodemanager-2
+            - datanode-nodemanager-3
+    
+    namenode2:
+        image: loind31/hdfs-spark:v0
+        hostname: namenode2
+        container_name: namenode2
+        command: ["/bin/bash", "/workspace/standby-namenode.sh"]
+        ports:
+            - 8089:8088
+            - 19889:19888
+            - 9871:9870
+            - 8889:8888
+            - 18081:18080
+            - 15003:15002
+            - 4041:4040
+        volumes:
+            - ./data/namenodes/standby:/workspace/hadoop/dfs/name
+            - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
+            - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./src:/workspace/src
+            - ./scripts/standby-namenode.sh:/workspace/standby-namenode.sh
+        depends_on:
+            - datanode-nodemanager-1
+            - datanode-nodemanager-2
+            - datanode-nodemanager-3
+
+    datanode-nodemanager-1:
+        image: loind31/hdfs-spark:v0
+        hostname: datanode-nodemanager-1
+        container_name: datanode-nodemanager-1
+        ports:
+            - 8043:8042
+        command: ["/bin/bash", "/workspace/datanode-entrypoint.sh"]
+        volumes:
+            - ./data/datanodes/datanode-1/local-data:/workspace/hadoop/dfs/data
+            - ./data/datanodes/datanode-1/journal:/workspace/journalnode
+            - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
+            - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./scripts/datanode-entrypoint.sh:/workspace/datanode-entrypoint.sh
+
+    datanode-nodemanager-2:
+        image: loind31/hdfs-spark:v0
+        hostname: datanode-nodemanager-2
+        container_name: datanode-nodemanager-2
+        ports:
+            - 8044:8042
+        command: ["/bin/bash", "/workspace/datanode-entrypoint.sh"]
+        volumes:
+            - ./data/datanodes/datanode-2/local-data:/workspace/hadoop/dfs/data
+            - ./data/datanodes/datanode-2/journal:/workspace/journalnode
+            - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
+            - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./scripts/datanode-entrypoint.sh:/workspace/datanode-entrypoint.sh
+
+    datanode-nodemanager-3:
+        image: loind31/hdfs-spark:v0
+        hostname: datanode-nodemanager-3
+        container_name: datanode-nodemanager-3
+        ports:
+            - 8045:8042
+        command: ["/bin/bash", "/workspace/datanode-entrypoint.sh"]
+        volumes:
+            - ./data/datanodes/datanode-3/local-data:/workspace/hadoop/dfs/data
+            - ./data/datanodes/datanode-3/journal:/workspace/journalnode
+            - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
+            - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./scripts/datanode-entrypoint.sh:/workspace/datanode-entrypoint.sh
