@@ -50,6 +50,7 @@ start-history-server.sh &
 
 echo "Starting Jupyter Notebook..."
 cd /workspace/src
+
 nohup jupyter lab --ip=0.0.0.0 --no-browser --allow-root --port=8888 \
   > /workspace/jupyter.log 2>&1 &
 
