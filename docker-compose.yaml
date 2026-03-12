@@ -1,3 +1,27 @@
+x-jounalnode: &journalnode-dependencies
+    depends_on:
+        zookeeper-1:
+            condition: service_healthy
+        zookeeper-2:
+            condition: service_healthy
+        zookeeper-3:
+            condition: service_healthy
+
+x-namenode: &namenode-dependencies
+    depends_on:
+        journalnode-1:
+            condition: service_healthy
+        journalnode-2:
+            condition: service_healthy
+        journalnode-3:
+            condition: service_healthy   
+
+x-datanode: &datanode-dependencies
+    depends_on:
+        namenode1:
+            condition: service_healthy
+        namenode2:
+            condition: service_healthy
 services:
     zookeeper-1:
         image: loind31/zookeeper:v0
@@ -12,6 +36,12 @@ services:
             - ./config/zookeeper:/workspace/zookeeper/conf
             - ./data/zookeepers/node-1:/workspace/zookeeper/data
             - ./scripts/zookeeper-entrypoint.sh:/workspace/entrypoint.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep QuorumPeerMain"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
     
     zookeeper-2:
         image: loind31/zookeeper:v0
@@ -26,7 +56,13 @@ services:
             - ./config/zookeeper:/workspace/zookeeper/conf
             - ./data/zookeepers/node-2:/workspace/zookeeper/data
             - ./scripts/zookeeper-entrypoint.sh:/workspace/entrypoint.sh
-        
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep QuorumPeerMain"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+
     zookeeper-3:
         image: loind31/zookeeper:v0
         hostname: zookeeper-3
@@ -40,6 +76,73 @@ services:
             - ./config/zookeeper:/workspace/zookeeper/conf
             - ./data/zookeepers/node-3:/workspace/zookeeper/data
             - ./scripts/zookeeper-entrypoint.sh:/workspace/entrypoint.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep QuorumPeerMain"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+
+    journalnode-1:
+        image: loind31/hdfs-spark:v0
+        hostname: journalnode-1
+        container_name: journalnode-1
+        command: ["/bin/bash", "/workspace/journalnode.sh"]
+        volumes:
+            - ./data/datanodes/datanode-1/journal:/workspace/journalnode
+            - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
+            - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./scripts/journalnode-entrypoint.sh:/workspace/journalnode.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep JournalNode"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        <<: *journalnode-dependencies
+    journalnode-2:
+        image: loind31/hdfs-spark:v0
+        hostname: journalnode-2
+        container_name: journalnode-2
+        command: ["/bin/bash", "/workspace/journalnode.sh"]
+        volumes:
+            - ./data/datanodes/datanode-2/journal:/workspace/journalnode
+            - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
+            - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./scripts/journalnode-entrypoint.sh:/workspace/journalnode.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep JournalNode"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        <<: *journalnode-dependencies
+    journalnode-3:
+        image: loind31/hdfs-spark:v0
+        hostname: journalnode-3
+        container_name: journalnode-3
+        command: ["/bin/bash", "/workspace/journalnode.sh"]
+        volumes:
+            - ./data/datanodes/datanode-3/journal:/workspace/journalnode
+            - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
+            - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./scripts/journalnode-entrypoint.sh:/workspace/journalnode.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep JournalNode"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        <<: *journalnode-dependencies
 
     namenode1:
         image: loind31/hdfs-spark:v0
@@ -57,6 +160,7 @@ services:
             - 15002:15002
             - 4040:4040
         volumes:
+            - ./data/namenodes/jupyter:/root/.jupyter
             - ./data/namenodes/actived:/workspace/hadoop/dfs/name
             - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
             - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
@@ -65,10 +169,13 @@ services:
             - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
             - ./src:/workspace/src
             - ./scripts/namenode-entrypoint.sh:/workspace/actived-namenode.sh
-        depends_on:
-            - datanode-nodemanager-1
-            - datanode-nodemanager-2
-            - datanode-nodemanager-3
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep NameNode"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        <<: *namenode-dependencies
     
     namenode2:
         image: loind31/hdfs-spark:v0
@@ -86,6 +193,7 @@ services:
             - 15003:15002
             - 4041:4040
         volumes:
+            - ./data/namenodes/jupyter:/root/.jupyter
             - ./data/namenodes/standby:/workspace/hadoop/dfs/name
             - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
             - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
@@ -94,58 +202,87 @@ services:
             - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
             - ./src:/workspace/src
             - ./scripts/namenode-entrypoint.sh:/workspace/standby-namenode.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep NameNode"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
         depends_on:
-            - datanode-nodemanager-1
-            - datanode-nodemanager-2
-            - datanode-nodemanager-3
-
-    datanode-nodemanager-1:
+            journalnode-1:
+                condition: service_healthy
+            journalnode-2:
+                condition: service_healthy
+            journalnode-3:
+                condition: service_healthy  
+            namenode1:
+                condition: service_healthy
+    datanode-1:
         image: loind31/hdfs-spark:v0
-        hostname: datanode-nodemanager-1
-        container_name: datanode-nodemanager-1
+        hostname: datanode-1
+        container_name: datanode-1
         ports:
             - 8043:8042
         command: ["/bin/bash", "/workspace/datanode-entrypoint.sh"]
         volumes:
             - ./data/datanodes/datanode-1/local-data:/workspace/hadoop/dfs/data
-            - ./data/datanodes/datanode-1/journal:/workspace/journalnode
             - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
-            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
+            - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml 
             - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
-            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
             - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
             - ./scripts/datanode-entrypoint.sh:/workspace/datanode-entrypoint.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep DataNode"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        <<: *datanode-dependencies
+        
 
-    datanode-nodemanager-2:
+    datanode-2:
         image: loind31/hdfs-spark:v0
-        hostname: datanode-nodemanager-2
-        container_name: datanode-nodemanager-2
+        hostname: datanode-2
+        container_name: datanode-2
         ports:
             - 8044:8042
         command: ["/bin/bash", "/workspace/datanode-entrypoint.sh"]
         volumes:
             - ./data/datanodes/datanode-2/local-data:/workspace/hadoop/dfs/data
-            - ./data/datanodes/datanode-2/journal:/workspace/journalnode
             - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
             - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
             - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
-            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
             - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
+            - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
             - ./scripts/datanode-entrypoint.sh:/workspace/datanode-entrypoint.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep DataNode"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        <<: *datanode-dependencies
             
-    datanode-nodemanager-3:
+    datanode-3:
         image: loind31/hdfs-spark:v0
-        hostname: datanode-nodemanager-3
-        container_name: datanode-nodemanager-3
+        hostname: datanode-3
+        container_name: datanode-3
         ports:
             - 8045:8042
         command: ["/bin/bash", "/workspace/datanode-entrypoint.sh"]
         volumes:
             - ./data/datanodes/datanode-3/local-data:/workspace/hadoop/dfs/data
-            - ./data/datanodes/datanode-3/journal:/workspace/journalnode
             - ./config/hdfs-spark/spark-defaults.conf:/workspace/spark/conf/spark-defaults.conf
             - ./config/hdfs-spark/common/hdfs-site.xml:/workspace/hadoop/etc/hadoop/hdfs-site.xml
             - ./config/hdfs-spark/common/core-site.xml:/workspace/hadoop/etc/hadoop/core-site.xml
             - ./config/hdfs-spark/common/mapred-site.xml:/workspace/hadoop/etc/hadoop/mapred-site.xml
             - ./config/hdfs-spark/common/yarn-site.xml:/workspace/hadoop/etc/hadoop/yarn-site.xml
             - ./scripts/datanode-entrypoint.sh:/workspace/datanode-entrypoint.sh
+        healthcheck:
+            test: ["CMD", "bash", "-c", "jps | grep DataNode"]
+            interval: 20s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+        <<: *datanode-dependencies
