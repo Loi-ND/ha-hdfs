@@ -19,7 +19,7 @@
 <configuration>
   <property>
     <name>dfs.datanode.data.dir</name>
-    <value>file:/workspace/hadoop/data</value>
+    <value>file:/workspace/hadoop/dfs/data</value>
   </property>
   <property>
     <name>dfs.replication</name>
@@ -59,7 +59,7 @@
   </property>
   <property>
     <name>dfs.namenode.shared.edits.dir</name>
-    <value>qjournal://datanode-nodemanager-1:8485;datanode-nodemanager-2:8485;datanode-nodemanager-3/ha-cluster</value>
+    <value>qjournal://journalnode-1:8485;journalnode-2:8485;journalnode-3:8485/ha-cluster</value>
   </property>
   <property>
     <name>dfs.namenode.edits.qjournals.resolution-enabled</name>
