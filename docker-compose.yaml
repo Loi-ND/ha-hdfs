@@ -29,8 +29,6 @@ services:
         container_name: zookeeper-1
         ports:
             - 2181:2181
-        environment:
-            ZK_ID: 1
         command: ["/bin/bash", "/workspace/entrypoint.sh"]
         volumes:
             - ./config/zookeeper:/workspace/zookeeper/conf
@@ -49,8 +47,6 @@ services:
         container_name: zookeeper-2
         ports:
             - 2182:2181
-        environment:
-            ZK_ID: 2
         command: ["/bin/bash", "/workspace/entrypoint.sh"]
         volumes:
             - ./config/zookeeper:/workspace/zookeeper/conf
@@ -69,8 +65,6 @@ services:
         container_name: zookeeper-3
         ports:
             - 2183:2181
-        environment:
-            ZK_ID: 3
         command: ["/bin/bash", "/workspace/entrypoint.sh"]
         volumes:
             - ./config/zookeeper:/workspace/zookeeper/conf
